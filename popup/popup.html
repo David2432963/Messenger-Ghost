@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messenger Ghost</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <div class="ghost-icon">👻</div>
+        <div class="header-text">
+          <h1>Messenger Ghost</h1>
+          <p>Ẩn thông báo Facebook & Messenger</p>
+        </div>
+      </div>
+
+      <!-- Master toggle -->
+      <div class="master-toggle">
+        <span class="toggle-label" id="master-label">Đang bật</span>
+        <label class="toggle" id="master-toggle-wrap">
+          <input type="checkbox" id="toggle-enabled" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Feature cards -->
+    <div class="features" id="features-section">
+
+      <!-- Block Typing -->
+      <div class="feature-card" id="card-typing">
+        <div class="feature-icon typing-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="5" cy="12" r="2" fill="currentColor"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+            <circle cx="19" cy="12" r="2" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="feature-info">
+          <div class="feature-name">Ẩn "Đang gõ..."</div>
+          <div class="feature-desc">Ẩn chỉ báo đang nhập tin nhắn</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-typing" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Block Seen -->
+      <div class="feature-card" id="card-seen">
+        <div class="feature-icon seen-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="feature-info">
+          <div class="feature-name">Ẩn "Đã xem"</div>
+          <div class="feature-desc">Ẩn trạng thái đã xem tin nhắn</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-seen" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Đang hoạt động trên trang này</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span>Messenger Ghost v3.2.0</span>
+      <span>·</span>
+      <span>messenger.com & facebook.com</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
