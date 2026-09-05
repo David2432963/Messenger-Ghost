@@ -6,7 +6,7 @@ This extension intercepts network signals sent from your browser to Facebook's s
 
 ---
 
-## ✨ Key Features (v3.2.0)
+## ✨ Key Features (v3.3.0)
 
 1. 🛡️ **Block "Seen" (Read Receipts)**
    - You can read messages freely without the sender seeing your small avatar icon (the read receipt) at the bottom of the conversation.
@@ -16,7 +16,14 @@ This extension intercepts network signals sent from your browser to Facebook's s
    - Prevents the sender from seeing the three-dot typing indicator (`...`) while you are drafting a reply.
    - You can take your time to compose long messages; the sender will only receive the message instantly when you click Send.
 
-3. 🚀 **Smooth Operation without UI Bugs**
+3. 🎬 **Block Floating Video (Watch & Scroll Mini-Player)**
+   - Automatically stops Facebook from popping up the annoying floating video mini-player at the bottom-right corner when scrolling past playing videos, livestreams, or Reels.
+   - Built with a **Triple-Shield Defense**:
+     - *Layer 1*: Intercepts Facebook's React modules (`useWatchAndScrollTrigger`, `CometWatchAndScroll.react`) before they render.
+     - *Layer 2*: Heuristic DOM observer detects floating video containers by position and geometry, immediately pauses/mutes audio leaks, and clicks the React close button to cleanly unmount state.
+     - *Layer 3*: Dynamic CSS shield instantly suppresses visual flickering.
+
+4. 🚀 **Smooth Operation without UI Bugs**
    - Uses an advanced **MQTT Payload Mangling** technique instead of outright blocking WebSocket frames.
    - This prevents background connection drops, avoids UI lag, and **fixes the disappearing text cursor bug** (a common issue in other typing-blocker extensions).
 
@@ -52,10 +59,11 @@ Since this extension is not yet published on the Chrome Web Store, you will need
 
 2. **Customize Features:**
    - Click the ghost icon 👻 on your toolbar to open the Popup interface.
-   - You will see 3 toggle switches:
+   - You will see switches to control each feature:
      - **Enable Messenger Ghost:** Master switch. Turning this off disables the entire extension.
-     - **Block "Seen" (Read Receipts):** Turn on to block read receipts.
-     - **Block Typing Indicator:** Turn on to block the typing indicator.
+     - **Ẩn "Đang gõ..." (Block Typing Indicator):** Turn on to block the typing indicator.
+     - **Ẩn "Đã xem" (Block Read Receipts):** Turn on to block read receipts.
+     - **Chặn video thu nhỏ (Block Floating Video):** Turn on to prevent floating video mini-players from popping up when scrolling past posts.
    - Your settings are saved automatically and synchronized instantly across all open Facebook/Messenger tabs (no page reload required).
 
 3. **Where does it work?**
@@ -67,10 +75,12 @@ Since this extension is not yet published on the Chrome Web Store, you will need
 
 ## ⚙️ For Developers (Technical Details)
 
-This project utilizes deep network interception techniques at the browser level:
+This project utilizes deep network interception and runtime hooking techniques:
 - **`WebSocket.prototype.send` Hook**: Intercepts binary packets (ArrayBuffer/Blob) communicated via the MQTT/Thrift protocol used by Facebook's Lightspeed architecture.
 - **`window.fetch` and `XMLHttpRequest` Hook**: Intercepts traditional GraphQL Mutation API calls (such as `MarkReadMutation`, `TypingMutation`).
 - **Payload Mangling**: Instead of dropping WebSocket packets (which breaks the MQTT protocol sequence and causes the React UI to reset/lose the text caret), the extension searches for and overwrites specific bytes (e.g., changing `set_typing_state` to `set_typ_ignored!`). This maintains the exact packet length, keeps the client state synchronized, and neutralizes the action on the server.
+- **Facebook Module Interception (`window.__d` Trap)**: Traps Facebook's CommonJS module system before runtime execution to neutralize `useWatchAndScrollTrigger`, `CometWatchAndScroll.react`, and `CometSetWatchAndScrollVideoContext`.
+- **Heuristic DOM MutationObserver**: Monitors DOM mutations for fixed-position video containers in bottom-right viewports, muting/pausing video elements and triggering localized React close handlers.
 
 ---
 

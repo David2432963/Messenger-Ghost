@@ -5,6 +5,7 @@
 const toggleEnabled = document.getElementById('toggle-enabled');
 const toggleTyping = document.getElementById('toggle-typing');
 const toggleSeen = document.getElementById('toggle-seen');
+const toggleFloatingVideo = document.getElementById('toggle-floating-video');
 const masterLabel = document.getElementById('master-label');
 const featuresSection = document.getElementById('features-section');
 const statusDot = document.getElementById('status-dot');
@@ -13,18 +14,21 @@ const statusBar = document.querySelector('.status-bar');
 
 // ─── Load saved settings ───────────────────────────────────────────────────
 
-chrome.storage.sync.get(['blockTyping', 'blockSeen', 'enabled'], (result) => {
+chrome.storage.sync.get(['blockTyping', 'blockSeen', 'blockFloatingVideo', 'enabled'], (result) => {
   const enabled = result.enabled !== false;
   const blockTyping = result.blockTyping !== false;
   const blockSeen = result.blockSeen !== false;
+  const blockFloatingVideo = result.blockFloatingVideo !== false;
 
   toggleEnabled.checked = enabled;
   toggleTyping.checked = blockTyping;
   toggleSeen.checked = blockSeen;
+  if (toggleFloatingVideo) toggleFloatingVideo.checked = blockFloatingVideo;
 
   updateMasterUI(enabled);
   updateCardUI('card-typing', blockTyping);
   updateCardUI('card-seen', blockSeen);
+  updateCardUI('card-floating-video', blockFloatingVideo);
 });
 
 // ─── Event Listeners ──────────────────────────────────────────────────────
@@ -46,6 +50,14 @@ toggleSeen.addEventListener('change', () => {
   chrome.storage.sync.set({ blockSeen });
   updateCardUI('card-seen', blockSeen);
 });
+
+if (toggleFloatingVideo) {
+  toggleFloatingVideo.addEventListener('change', () => {
+    const blockFloatingVideo = toggleFloatingVideo.checked;
+    chrome.storage.sync.set({ blockFloatingVideo });
+    updateCardUI('card-floating-video', blockFloatingVideo);
+  });
+}
 
 // ─── UI Update Helpers ────────────────────────────────────────────────────
 

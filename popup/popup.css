@@ -34,7 +34,7 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   width: 340px;
-  min-height: 400px;
+  min-height: 460px;
   overflow: hidden;
   user-select: none;
 }
@@ -241,6 +241,12 @@ body {
   background: linear-gradient(135deg, rgba(255, 106, 176, 0.2), rgba(255, 106, 176, 0.05));
   color: var(--accent-2);
   border: 1px solid rgba(255, 106, 176, 0.3);
+}
+
+.video-icon {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.05));
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
 /* Feature text */

@@ -52,6 +52,7 @@
     enabled: true,
     blockTyping: true,
     blockSeen: true,
+    blockFloatingVideo: true,
   };
 
   function readDatasetSettings() {
@@ -60,6 +61,7 @@
     if (ds.mgEnabled !== undefined) localSettings.enabled = ds.mgEnabled !== 'false';
     if (ds.mgBlockTyping !== undefined) localSettings.blockTyping = ds.mgBlockTyping !== 'false';
     if (ds.mgBlockSeen !== undefined) localSettings.blockSeen = ds.mgBlockSeen !== 'false';
+    if (ds.mgBlockFloatingVideo !== undefined) localSettings.blockFloatingVideo = ds.mgBlockFloatingVideo !== 'false';
   }
 
   readDatasetSettings();
@@ -71,6 +73,7 @@
         if (s.enabled !== undefined) localSettings.enabled = Boolean(s.enabled);
         if (s.blockTyping !== undefined) localSettings.blockTyping = Boolean(s.blockTyping);
         if (s.blockSeen !== undefined) localSettings.blockSeen = Boolean(s.blockSeen);
+        if (s.blockFloatingVideo !== undefined) localSettings.blockFloatingVideo = Boolean(s.blockFloatingVideo);
       }
     }
   });
@@ -79,7 +82,89 @@
     enabled: () => { readDatasetSettings(); return localSettings.enabled; },
     blockTyping: () => { readDatasetSettings(); return localSettings.enabled && localSettings.blockTyping; },
     blockSeen: () => { readDatasetSettings(); return localSettings.enabled && localSettings.blockSeen; },
+    blockFloatingVideo: () => { readDatasetSettings(); return localSettings.enabled && localSettings.blockFloatingVideo; },
   };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 0.1 TRAP Facebook Module System (window.__d) — LAYER 1: SOURCE INTERCEPTION
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Facebook defines React components and hooks via window.__d(name, deps, factory).
+  // Neutralize Watch and Scroll modules before they ever register or render.
+
+  let _realD = window.__d;
+
+  function wrapD(fn) {
+    if (typeof fn !== 'function') return fn;
+    return function (name, deps, factory) {
+      if (typeof name === 'string') {
+        if (name === 'useWatchAndScrollTrigger') {
+          const origFactory = factory;
+          factory = function () {
+            origFactory.apply(this, arguments);
+            const exportBag = arguments[arguments.length - 1];
+            if (exportBag && typeof exportBag === 'object') {
+              const origHook = exportBag.useWatchAndScrollTrigger;
+              exportBag.useWatchAndScrollTrigger = function () {
+                if (mg.blockFloatingVideo()) {
+                  console.debug('[Messenger Ghost] 🛡️ Neutralized useWatchAndScrollTrigger');
+                  return function () {};
+                }
+                return typeof origHook === 'function' ? origHook.apply(this, arguments) : origHook;
+              };
+            }
+          };
+        } else if (name === 'CometWatchAndScroll.react') {
+          const origFactory = factory;
+          factory = function () {
+            origFactory.apply(this, arguments);
+            const exportBag = arguments[arguments.length - 1];
+            if (exportBag && typeof exportBag === 'object') {
+              const origComp = exportBag.default;
+              exportBag.default = function () {
+                if (mg.blockFloatingVideo()) {
+                  console.debug('[Messenger Ghost] 🛡️ Blocked CometWatchAndScroll render');
+                  return null;
+                }
+                return typeof origComp === 'function' ? origComp.apply(this, arguments) : origComp;
+              };
+            }
+          };
+        } else if (name === 'CometSetWatchAndScrollVideoContext') {
+          const origFactory = factory;
+          factory = function () {
+            origFactory.apply(this, arguments);
+            const exportBag = arguments[arguments.length - 1];
+            if (exportBag && typeof exportBag === 'object') {
+              const origSetter = exportBag.default || exportBag.CometSetWatchAndScrollVideoContext;
+              const noop = function () {
+                if (mg.blockFloatingVideo()) {
+                  return function () {};
+                }
+                return typeof origSetter === 'function' ? origSetter.apply(this, arguments) : origSetter;
+              };
+              if (exportBag.default) exportBag.default = noop;
+              if (exportBag.CometSetWatchAndScrollVideoContext) exportBag.CometSetWatchAndScrollVideoContext = noop;
+            }
+          };
+        }
+      }
+      return fn.apply(this, arguments);
+    };
+  }
+
+  try {
+    Object.defineProperty(window, '__d', {
+      configurable: true,
+      enumerable: true,
+      get: function () { return _realD; },
+      set: function (fn) {
+        _realD = wrapD(fn);
+      },
+    });
+    if (_realD) {
+      _realD = wrapD(_realD);
+    }
+  } catch (_) {}
 
   // ─── Keyword Lists & Mangles ────────────────────────────────────────────────
 
@@ -519,6 +604,172 @@
     };
   }
 
-  console.info('[Messenger Ghost] 👻 v3.2 Active — SharedWorker disabled, MQTT traffic intercepted on main thread.');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 6. FLOATING VIDEO (WATCH & SCROLL) HEURISTIC OBSERVER & AUTO-CLOSER
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Provides defense-in-depth: if Facebook renames modules or bypasses __d hook,
+  // this observer detects floating video containers by geometric heuristics,
+  // pauses and mutes playback (stopping audio leaks), applies instant CSS
+  // concealment, and triggers the close button to unmount React state cleanly.
+
+  const DOCKED_CLOSE_REGEX = /(đóng|close|schließen|fermer|cerrar|chiudi|fechar|dismiss)/i;
+
+  function findFloatingVideoContainer(videoEl) {
+    if (!videoEl || !videoEl.isConnected) return null;
+
+    let curr = videoEl.parentElement;
+    let fixedAncestor = null;
+
+    while (curr && curr !== document.body && curr !== document.documentElement) {
+      // Ignore Messenger chat tabs / message composer dialogs
+      if (curr.querySelector && (curr.querySelector('[role="textbox"]') || curr.querySelector('[contenteditable="true"]'))) {
+        return null;
+      }
+      if (curr.getAttribute && (curr.getAttribute('role') === 'dialog' || curr.getAttribute('data-pagelet') === 'ChatTab')) {
+        if (curr.querySelector('[role="textbox"]') || curr.querySelector('[contenteditable="true"]')) {
+          return null;
+        }
+      }
+
+      const style = window.getComputedStyle(curr);
+      if (style.position === 'fixed' || style.position === 'sticky') {
+        fixedAncestor = curr;
+        break;
+      }
+      curr = curr.parentElement;
+    }
+
+    if (!fixedAncestor) return null;
+
+    const rect = fixedAncestor.getBoundingClientRect();
+    const winW = window.innerWidth || (document.documentElement ? document.documentElement.clientWidth : 1280);
+    const winH = window.innerHeight || (document.documentElement ? document.documentElement.clientHeight : 800);
+
+    // Mini-player geometric signature: bottom half, reasonable mini-dimensions, not fullscreen
+    const inBottomArea = rect.bottom > winH * 0.4 && rect.top > 40;
+    const isMiniSize = rect.width > 80 && rect.width < 550 && rect.height > 60 && rect.height < 450;
+    const notFullscreen = rect.width < winW * 0.8 && rect.height < winH * 0.8;
+
+    if (inBottomArea && isMiniSize && notFullscreen) {
+      return fixedAncestor;
+    }
+    return null;
+  }
+
+  function blockAndCloseFloatingPlayer(container, videoEl) {
+    if (!container || container.dataset.mgDockedVideo === 'blocked') return;
+    container.dataset.mgDockedVideo = 'blocked';
+
+    // 1. Conceal immediately
+    container.style.setProperty('display', 'none', 'important');
+    container.style.setProperty('opacity', '0', 'important');
+    container.style.setProperty('pointer-events', 'none', 'important');
+    container.style.setProperty('visibility', 'hidden', 'important');
+
+    // 2. Pause & mute video to stop sound leakage
+    try {
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.muted = true;
+      }
+      const allVids = container.querySelectorAll('video');
+      for (let i = 0; i < allVids.length; i++) {
+        try {
+          allVids[i].pause();
+          allVids[i].muted = true;
+        } catch (_) {}
+      }
+    } catch (_) {}
+
+    // 3. Trigger close button to cleanly unmount React tree
+    try {
+      const buttons = container.querySelectorAll('div[role="button"], button');
+      let clicked = false;
+      for (let i = 0; i < buttons.length; i++) {
+        const btn = buttons[i];
+        const label = btn.getAttribute('aria-label') || btn.textContent || '';
+        if (DOCKED_CLOSE_REGEX.test(label)) {
+          btn.click();
+          clicked = true;
+          break;
+        }
+      }
+      if (!clicked) {
+        for (let i = 0; i < buttons.length; i++) {
+          const btn = buttons[i];
+          if (btn.querySelector('svg')) {
+            const bRect = btn.getBoundingClientRect();
+            const cRect = container.getBoundingClientRect();
+            if (bRect.top <= cRect.top + 60) {
+              btn.click();
+              clicked = true;
+              break;
+            }
+          }
+        }
+      }
+    } catch (_) {}
+
+    console.debug('[Messenger Ghost] 🛡️ Neutralized floating video mini-player');
+  }
+
+  function scanForFloatingVideos() {
+    if (!mg.blockFloatingVideo()) return;
+    const videos = document.querySelectorAll('video');
+    for (let i = 0; i < videos.length; i++) {
+      const v = videos[i];
+      const container = findFloatingVideoContainer(v);
+      if (container) {
+        blockAndCloseFloatingPlayer(container, v);
+      }
+    }
+  }
+
+  let _scanTimer = null;
+  function scheduleScan() {
+    if (!mg.blockFloatingVideo() || _scanTimer) return;
+    _scanTimer = setTimeout(() => {
+      _scanTimer = null;
+      scanForFloatingVideos();
+    }, 100);
+  }
+
+  // MutationObserver for newly injected floating player containers
+  const floatingVideoObserver = new MutationObserver((mutations) => {
+    if (!mg.blockFloatingVideo()) return;
+    for (let i = 0; i < mutations.length; i++) {
+      const m = mutations[i];
+      if (m.addedNodes && m.addedNodes.length > 0) {
+        for (let j = 0; j < m.addedNodes.length; j++) {
+          const node = m.addedNodes[j];
+          if (node.nodeType === 1) {
+            if (node.tagName === 'VIDEO' || (node.querySelector && node.querySelector('video'))) {
+              scheduleScan();
+              return;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  function initFloatingVideoShield() {
+    const target = document.body || document.documentElement;
+    if (target) {
+      floatingVideoObserver.observe(target, { childList: true, subtree: true });
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        const root = document.body || document.documentElement;
+        if (root) floatingVideoObserver.observe(root, { childList: true, subtree: true });
+      }, { once: true });
+    }
+
+    // Also listen to scroll (throttled) because Facebook triggers miniplayer docking on scroll
+    window.addEventListener('scroll', scheduleScan, { passive: true });
+  }
+
+  initFloatingVideoShield();
+
+  console.info('[Messenger Ghost] 👻 v3.3.0 Active — SharedWorker disabled, Watch & Scroll blocked, MQTT traffic intercepted.');
 
 })();
