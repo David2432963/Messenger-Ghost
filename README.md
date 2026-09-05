@@ -1,80 +1,80 @@
 # Messenger Ghost 👻
 
-**Messenger Ghost** là một tiện ích mở rộng (extension) dành cho trình duyệt Chrome, Edge, Brave, Cốc Cốc,... giúp bạn bảo vệ quyền riêng tư khi sử dụng Facebook và Messenger. 
+**Messenger Ghost** is a browser extension for Chrome, Edge, Brave, and other Chromium-based browsers that helps you protect your privacy while using Facebook and Messenger.
 
-Extension này chặn các tín hiệu mạng gửi từ trình duyệt của bạn đến máy chủ Facebook, qua đó ngăn người khác biết bạn đã đọc tin nhắn hay đang gõ phím.
-
----
-
-## ✨ Tính năng nổi bật (Phiên bản v3.2.0)
-
-1. 🛡️ **Chặn thông báo "Đã xem" (Seen / Read Receipt)**
-   - Bạn có thể đọc tin nhắn thoải mái mà đối phương sẽ không thấy biểu tượng avatar nhỏ của bạn (đánh dấu đã đọc) hiển thị ở tin nhắn cuối cùng.
-   - Tin nhắn của bạn sẽ luôn ở trạng thái "Đã nhận" (Delivered) đối với họ.
-
-2. ⌨️ **Chặn thông báo "Đang gõ" (Typing Indicator)**
-   - Ngăn đối phương nhìn thấy biểu tượng dấu 3 chấm (`...`) khi bạn đang gõ phím trả lời.
-   - Bạn có thể soạn tin nhắn dài tùy ý, đối phương sẽ chỉ nhận được tin nhắn đột ngột nảy lên khi bạn bấm Gửi.
-
-3. 🚀 **Hoạt động trơn tru, không gây lỗi giao diện (UI)**
-   - Sử dụng kỹ thuật **MQTT Payload Mangling** (Làm sai lệch gói tin) thay vì chặn hoàn toàn gói tin để đánh lừa máy chủ Facebook.
-   - Hoàn toàn không gây đứt kết nối ngầm, không làm giật lag giao diện, và **không làm mất con trỏ chuột** khi gõ phím (một lỗi rất phổ biến ở các extension chặn typing khác).
+This extension intercepts network signals sent from your browser to Facebook's servers, preventing others from knowing when you have read their messages or when you are typing a reply.
 
 ---
 
-## 🛠️ Hướng dẫn cài đặt (Chế độ Nhà phát triển)
+## ✨ Key Features (v3.2.0)
 
-Do extension này chưa được đưa lên Chrome Web Store, bạn cần cài đặt thủ công thông qua thư mục mã nguồn:
+1. 🛡️ **Block "Seen" (Read Receipts)**
+   - You can read messages freely without the sender seeing your small avatar icon (the read receipt) at the bottom of the conversation.
+   - To them, the message will always remain in the "Delivered" state.
 
-1. **Tải mã nguồn:**
-   - Bấm vào nút **Code** màu xanh lá trên GitHub -> chọn **Download ZIP**.
-   - Giải nén file ZIP vừa tải về vào một thư mục trên máy tính (ví dụ: `C:\Messenger-Ghost`).
+2. ⌨️ **Block Typing Indicator**
+   - Prevents the sender from seeing the three-dot typing indicator (`...`) while you are drafting a reply.
+   - You can take your time to compose long messages; the sender will only receive the message instantly when you click Send.
 
-2. **Mở trang Tiện ích mở rộng (Extensions):**
-   - Mở Chrome (hoặc Edge, Cốc Cốc).
-   - Truy cập vào địa chỉ: `chrome://extensions/` (hoặc `edge://extensions/`).
-
-3. **Bật Chế độ dành cho nhà phát triển (Developer mode):**
-   - Nhìn sang góc **trên cùng bên phải**, gạt công tắc **Developer mode** (Chế độ dành cho nhà phát triển) sang màu xanh (Bật).
-
-4. **Tải extension lên:**
-   - Bấm vào nút **Load unpacked** (Tải tiện ích đã giải nén) xuất hiện ở góc trên bên trái.
-   - Chọn thư mục `Messenger-Ghost` mà bạn vừa giải nén ở bước 1.
-   - Extension **Messenger Ghost** sẽ xuất hiện trong danh sách.
+3. 🚀 **Smooth Operation without UI Bugs**
+   - Uses an advanced **MQTT Payload Mangling** technique instead of outright blocking WebSocket frames.
+   - This prevents background connection drops, avoids UI lag, and **fixes the disappearing text cursor bug** (a common issue in other typing-blocker extensions).
 
 ---
 
-## 💡 Hướng dẫn sử dụng
+## 🛠️ Installation Guide (Developer Mode)
 
-1. **Ghim Extension (Khuyên dùng):**
-   - Bấm vào biểu tượng mảnh ghép (Extensions) ở góc trên bên phải trình duyệt.
-   - Bấm vào biểu tượng đinh ghim (Pin) bên cạnh tên **Messenger Ghost** để nó luôn hiển thị trên thanh công cụ.
+Since this extension is not yet published on the Chrome Web Store, you will need to install it manually using the source code:
 
-2. **Tùy chỉnh tính năng:**
-   - Click vào biểu tượng con ma 👻 của extension trên thanh công cụ.
-   - Giao diện Popup sẽ hiện ra. Tại đây, bạn có 3 công tắc (switch):
-     - **Enable Messenger Ghost:** Công tắc tổng. Tắt cái này sẽ vô hiệu hóa toàn bộ extension.
-     - **Block "Seen" (Read Receipts):** Bật để chặn tính năng đã xem.
-     - **Block Typing Indicator:** Bật để chặn tính năng đang gõ.
-   - Các thay đổi của bạn sẽ tự động được lưu và đồng bộ ngay lập tức với các tab Facebook/Messenger đang mở (không cần tải lại trang).
+1. **Download the source code:**
+   - Click the green **Code** button on GitHub -> select **Download ZIP**.
+   - Extract the downloaded ZIP file to a folder on your computer (e.g., `C:\Messenger-Ghost`).
 
-3. **Hoạt động ở đâu?**
-   - Extension tự động hoạt động trên:
+2. **Open the Extensions page:**
+   - Open Chrome (or Edge, Brave).
+   - Navigate to: `chrome://extensions/` (or `edge://extensions/`).
+
+3. **Enable Developer mode:**
+   - Look at the **top right corner** and toggle the **Developer mode** switch to ON.
+
+4. **Load the extension:**
+   - Click the **Load unpacked** button that appears in the top left corner.
+   - Select the `Messenger-Ghost` folder you extracted in step 1.
+   - **Messenger Ghost** will now appear in your list of extensions.
+
+---
+
+## 💡 How to Use
+
+1. **Pin the Extension (Recommended):**
+   - Click the puzzle piece icon (Extensions) in the top right corner of your browser.
+   - Click the pin icon next to **Messenger Ghost** to keep it visible on your toolbar.
+
+2. **Customize Features:**
+   - Click the ghost icon 👻 on your toolbar to open the Popup interface.
+   - You will see 3 toggle switches:
+     - **Enable Messenger Ghost:** Master switch. Turning this off disables the entire extension.
+     - **Block "Seen" (Read Receipts):** Turn on to block read receipts.
+     - **Block Typing Indicator:** Turn on to block the typing indicator.
+   - Your settings are saved automatically and synchronized instantly across all open Facebook/Messenger tabs (no page reload required).
+
+3. **Where does it work?**
+   - The extension automatically runs on:
      - `https://www.facebook.com/*`
      - `https://www.messenger.com/*`
 
 ---
 
-## ⚙️ Dành cho Nhà phát triển (Kỹ thuật)
+## ⚙️ For Developers (Technical Details)
 
-Dự án này ứng dụng các kỹ thuật chặn mạng (Network Interception) ở cấp độ sâu nhất của trình duyệt:
-- **Hook `WebSocket.prototype.send`**: Đánh chặn các gói tin binary (ArrayBuffer/Blob) giao tiếp qua giao thức MQTT/Thrift của hệ thống Facebook Lightspeed.
-- **Hook `window.fetch` và `XMLHttpRequest`**: Đánh chặn các lời gọi API GraphQL Mutation truyền thống (như `MarkReadMutation`, `TypingMutation`).
-- **Payload Mangling**: Thay vì drop (chặn) gói tin WebSocket, extension tìm và ghi đè các bytes (ví dụ: `set_typing_state` -> `set_typ_ignored!`) nhằm giữ nguyên độ dài gói tin, giữ trạng thái máy khách đồng bộ và tránh lỗi React UI.
+This project utilizes deep network interception techniques at the browser level:
+- **`WebSocket.prototype.send` Hook**: Intercepts binary packets (ArrayBuffer/Blob) communicated via the MQTT/Thrift protocol used by Facebook's Lightspeed architecture.
+- **`window.fetch` and `XMLHttpRequest` Hook**: Intercepts traditional GraphQL Mutation API calls (such as `MarkReadMutation`, `TypingMutation`).
+- **Payload Mangling**: Instead of dropping WebSocket packets (which breaks the MQTT protocol sequence and causes the React UI to reset/lose the text caret), the extension searches for and overwrites specific bytes (e.g., changing `set_typing_state` to `set_typ_ignored!`). This maintains the exact packet length, keeps the client state synchronized, and neutralizes the action on the server.
 
 ---
 
-## ⚠️ Lưu ý
+## ⚠️ Important Notes
 
-- **Xung đột:** Nếu bạn đang cài các extension khác có tính năng tương tự (như J2TEAM Security, Unseen,...), chúng có thể xung đột với nhau. Khuyên dùng chỉ bật 1 extension loại này tại một thời điểm.
-- **Cập nhật Facebook:** Facebook thường xuyên thay đổi cơ chế nội bộ (nhất là GraphQL hoặc MQTT topic). Nếu tính năng ngừng hoạt động trong tương lai, extension sẽ cần được cập nhật bộ từ khóa (Keyword list).
+- **Conflicts:** If you have other extensions with similar features (like J2TEAM Security, Unseen, etc.), they might conflict. It is highly recommended to enable only one extension of this type at a time.
+- **Facebook Updates:** Facebook frequently updates its internal mechanisms (especially GraphQL mutations or MQTT topics). If the features stop working in the future, the extension's Keyword list will need to be updated.
